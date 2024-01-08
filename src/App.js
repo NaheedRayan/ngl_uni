@@ -1,6 +1,6 @@
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import './App.css';
-import db from "./firebase"
+import firestore from "./firebase"
 import { useEffect, useState } from 'react';
 
 
@@ -10,7 +10,7 @@ import { getAuth, signInAnonymously , onAuthStateChanged } from "firebase/auth";
 import {BrowserRouter , Routes , Route} from 'react-router-dom'
 import Scoreboard from './pages/scoreboard';
 import Comments from './pages/comments' ;
-
+import Form from './pages/form';
 
 
 
@@ -25,7 +25,7 @@ function App() {
   useEffect(() => {
 
 
-    const q = query(collection(db , "user"));
+    const q = query(collection(firestore , "user"));
     
     // Reference to your Firestore collection
     const unsubscribe = onSnapshot(q,(querySnapshot) => {
@@ -78,10 +78,10 @@ onAuthStateChanged(auth, (user) => {
   
   return (
     <div className="App">
-      <div>Hello world  Naheed{data.map((item, index) => (
+      {/* <div>Hello world  Naheed{data.map((item, index) => (
           <li key={index}>{JSON.stringify(item)}</li>
       ))}
-      </div> 
+      </div>  */}
 
 
       <BrowserRouter>
@@ -89,6 +89,7 @@ onAuthStateChanged(auth, (user) => {
         <Route index element={<Scoreboard/>}/>
         <Route path='/scoreboard' element={<Scoreboard/>}/>
         <Route path='/comments' element={<Comments/>}/>
+        <Route path='/form' element={<Form/>}/>
 
 
       </Routes>
