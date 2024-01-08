@@ -1,0 +1,4 @@
+npx create-react-app ./
+
+npm install firebase
+npm install react-router-dom
