@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import firestore from "../firebase"
-import {Link, useNavigate} from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
+
 
 
 
@@ -11,17 +12,14 @@ export default function Scoreboard(){
       // hooks
 
     const [data , setData] = useState([]) ;
-
     useEffect(() => {
 
-
     const q = query(collection(firestore , "teachers"));
-    
     // Reference to your Firestore collection
     const unsubscribe = onSnapshot(q,(querySnapshot) => {
       // Extract data from each document in the collection
       const newData = querySnapshot.docs.map((doc) => doc.data());
-      console.log(newData)
+    //   console.log(newData)
       setData(newData)
     })
 
@@ -31,15 +29,12 @@ export default function Scoreboard(){
 
     }, [])// Empty dependency array means this effect runs once on mount
 
-    const cardClicked = (event , data)=>{
-        console.log('Card is clicked and its unique id is '+ data.uniqueId);
-      
-        
-    }
+   
 
     const navigate = useNavigate();
- 
+
     return(
+    
         <>
         <h1>This is scoreboard page</h1>
         {/* <div>Hello world  Naheed{data.map((item, index) => (

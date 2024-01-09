@@ -1,4 +1,4 @@
-import { collection, onSnapshot, query } from 'firebase/firestore';
+import { addDoc, collection, doc, onSnapshot, query, setDoc } from 'firebase/firestore';
 import './App.css';
 import firestore from "./firebase"
 import { useEffect, useState } from 'react';
@@ -14,47 +14,14 @@ import Form from './pages/form';
 
 
 
-
-
-
-function App() {
-  // hooks
-
-  const [data , setData] = useState([]) ;
-
-  useEffect(() => {
-
-
-    const q = query(collection(firestore , "user"));
-    
-    // Reference to your Firestore collection
-    const unsubscribe = onSnapshot(q,(querySnapshot) => {
-      // Extract data from each document in the collection
-      const newData = querySnapshot.docs.map((doc) => doc.data());
-      console.log(newData)
-      setData(newData)
-    })
-
-    // Cleanup function to unsubscribe from updates when the component unmounts
-    return () => unsubscribe();
-
-
-  }, [])// Empty dependency array means this effect runs once on mount
-
-
- 
-
-
-
-
-
-  ///////////////////////////////////////////////////////////
-
+  ///////////////////////////for anonymous auth////////////////////////////////
   const auth = getAuth();
+
   signInAnonymously(auth)
   .then(() => {
     // Signed in..
-    // console.log("Hello wold")
+    console.log("Signed In")
+    console.log(auth.currentUser.uid)
   })
   .catch((error) => {
     const errorCode = error.code;
@@ -62,40 +29,74 @@ function App() {
     // ...
   });
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is signed in, see docs for a list of available properties
-    // https://firebase.google.com/docs/reference/js/auth.user
-    const uid = user.uid;
-    // console.log(uid)
-    // ...
-  } else {
-    // User is signed out
-    // ...
+
+
+
+
+function App() {
+  // hooks
+  const [signedIn , setSignedIn] = useState(false);
+
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // const uid = user.uid;
+      // console.log(uid)
+      setSignedIn(true)
+      try {
+
+        const docRef = await setDoc(doc(firestore , 'user' , user.uid),{
+          uid:user.uid,
+          reviewsCnt:0,
+          replyCnt:0,
+          commentTimestamp:[],
+          replyTimestamp:[],
+        })
+    
+        console.log('Document written with ID: ',  user.uid);
+
+
+      } catch (error) {
+        console.error('Error adding document: ', error);
+      }
+
+      // ...
+    } else {
+      // User is signed out
+      setSignedIn(false)
+      // ...
+    }
+  });
+
+ 
+
+// if the user is signed in then we will render
+  if(signedIn){
+    return (
+      <div className="App">
+        {/* router for different pages */}
+        <BrowserRouter>
+        <Routes>
+          <Route index element={<Scoreboard/>}/>
+          <Route path='/scoreboard' element={<Scoreboard/>}/>
+          <Route path='/comments' element={<Comments/>}/>
+          <Route path='/form' element={<Form/>}/>
+  
+  
+        </Routes>
+        </BrowserRouter> 
+      </div>
+    );
   }
-});
-  
-  
-  return (
-    <div className="App">
-      {/* <div>Hello world  Naheed{data.map((item, index) => (
-          <li key={index}>{JSON.stringify(item)}</li>
-      ))}
-      </div>  */}
+  else{
+// else will show 404 page
+    return(
+      <div className='App'>
+        <h3>404 😔 something went wrong</h3>
+      </div>
+    )
+  }
 
-
-      <BrowserRouter>
-      <Routes>
-        <Route index element={<Scoreboard/>}/>
-        <Route path='/scoreboard' element={<Scoreboard/>}/>
-        <Route path='/comments' element={<Comments/>}/>
-        <Route path='/form' element={<Form/>}/>
-
-
-      </Routes>
-      </BrowserRouter> 
-    </div>
-  );
 }
 
 export default App;
